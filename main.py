@@ -1,5 +1,7 @@
+import time
 from dotenv import load_dotenv
 import os
+from google.oauth2 import service_account
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -18,44 +20,45 @@ SAMPLE_RANGE_NAME = os.getenv('SAMPLE_RANGE_NAME')
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 
+LISTEN = os.getenv('LISTEN')
+if LISTEN == "True":
+    LISTEN = True
+else:
+    LISTEN = False
+
+SERVICE_ACCOUNT_FILE = 'service-account.json'
+
 if not MAIL_USERNAME or not MAIL_PASSWORD:
     raise ValueError('Please set your credentials')
 
-def authenticate_google_sheets():
-    creds = None
-    # The file 'credentials.json' should be in the same directory as your script
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", SCOPES
-            )
-            creds = flow.run_local_server(port=8888)
-        # Save the credentials for the next run
-        # with open("token.json", "w") as token:
-        #     token.write(creds.to_json())
-    return creds
-
 def main():
-    creds = authenticate_google_sheets()
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
     service = build("sheets", "v4", credentials=creds)
-    try:
-        values = get_info_from_mails(MAIL_USERNAME, MAIL_PASSWORD)
-        body = {"values": values}
-        sheet = service.spreadsheets()
-        result = sheet.values().append(
-            spreadsheetId=SAMPLE_SPREADSHEET_ID, 
-            range=SAMPLE_RANGE_NAME, 
-            valueInputOption="RAW", 
-            body=body
-        ).execute()
-        print("Data successfully written to Google Sheets.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    print("Starting...")
+    print("Getting data from mails...")
+    while True:
+        try:
+            # values = get_info_from_mails(MAIL_USERNAME, MAIL_PASSWORD, LISTEN)
+            values = [['2023-01-01 00:00:00', 'Test', '100.00', 'Pago']]
+            if values:
+                body = {"values": values}
+                sheet = service.spreadsheets()
+                result = sheet.values().append(
+                    spreadsheetId=SAMPLE_SPREADSHEET_ID, 
+                    range=SAMPLE_RANGE_NAME, 
+                    valueInputOption="RAW", 
+                    body=body
+                ).execute()
+                print("Data successfully written to Google Sheets.")
+                if not LISTEN:
+                    break
+                time.sleep(60*5)
+                print("Getting data from mails...")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            break
 
 if __name__ == "__main__":
     main()

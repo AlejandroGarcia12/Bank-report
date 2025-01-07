@@ -2,6 +2,8 @@
 .env
 # Ignore credentials file
 credentials.json
+token.json
+service-account.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
