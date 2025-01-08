@@ -19,12 +19,12 @@ def get_info_from_mails(MAIL_USERNAME, MAIL_PASSWORD, LISTEN):
         mail.select('inbox')
 
         # Get the date range for last month
-        start_date, end_date = datetime.now(colombia_tz).strftime('%d-%b-%Y'), (datetime.now(colombia_tz) + timedelta(days=1)).strftime('%d-%b-%Y')
+        start_date, end_date = (datetime.now(colombia_tz) - timedelta(days=1)).strftime('%d-%b-%Y'), datetime.now(colombia_tz).strftime('%d-%b-%Y')
 
         # Search for emails from your bank with a specific subject from last month
         status, messages = mail.search(
             None,
-            f'(SINCE {start_date} BEFORE {end_date} FROM "notificaciones@lulobank.com" (OR SUBJECT "Compra realizada" SUBJECT "Pago PSE exitoso"))' 
+            f'(SINCE {start_date} BEFORE {end_date} FROM "notificaciones@lulobank.com" (OR SUBJECT "Compra realizada" SUBJECT "Pago PSE exitoso" SUBJECT "Transferencia aprobada"))' 
         )
 
         # Get the list of email IDs

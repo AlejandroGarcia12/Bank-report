@@ -40,8 +40,7 @@ def main():
     print("Getting data from mails...")
     while True:
         try:
-            # values = get_info_from_mails(MAIL_USERNAME, MAIL_PASSWORD, LISTEN)
-            values = [['2023-01-01 00:00:00', 'Test', '100.00', 'Pago']]
+            values = get_info_from_mails(MAIL_USERNAME, MAIL_PASSWORD, LISTEN)
             if values:
                 body = {"values": values}
                 sheet = service.spreadsheets()
