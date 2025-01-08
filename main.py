@@ -26,7 +26,7 @@ if LISTEN == "True":
 else:
     LISTEN = False
 
-SERVICE_ACCOUNT_FILE = 'service-account.json'
+SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
 
 if not MAIL_USERNAME or not MAIL_PASSWORD:
     raise ValueError('Please set your credentials')
