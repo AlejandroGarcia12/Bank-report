@@ -51,10 +51,12 @@ def main():
                     body=body
                 ).execute()
                 print("Data successfully written to Google Sheets.")
-                if not LISTEN:
-                    break
-                time.sleep(60*5)
-                print("Getting data from mails...")
+                if LISTEN:
+                    time.sleep(60*5)
+                    print("Getting data from mails...")
+            if not LISTEN:
+                print("ending...")
+                break
         except Exception as e:
             print(f"An error occurred: {e}")
             break
